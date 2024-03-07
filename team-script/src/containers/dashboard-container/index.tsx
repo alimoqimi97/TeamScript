@@ -21,10 +21,12 @@ const DashboardContainer: FC = () => {
     const binding = new MonacoBinding(
       text,
       editorRef.current.getModel(),
-      new Set([editorRef.current])
+      new Set([editorRef.current]),
+      provider.awareness
     );
+    console.log(provider.awareness);
   };
-  
+
   return (
     <section>
       <Editor
