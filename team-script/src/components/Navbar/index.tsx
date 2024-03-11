@@ -1,7 +1,7 @@
 "use client";
 import { FC } from "react";
 import Link from "next/link";
-import { UserButton, useUser } from "@clerk/nextjs";
+import { UserButton, useUser, SignInButton } from "@clerk/nextjs";
 import styles from "./styles.module.scss";
 
 const Navbar: FC = () => {
@@ -9,7 +9,9 @@ const Navbar: FC = () => {
 
   return (
     <nav className={styles["navbar"]}>
-      <Link href="/">Home</Link>
+      <Link href="/">
+        TeamScript
+      </Link>
       {isLoaded && user ? (
         <div className="w-auto flex justify-between items-center">
           {" "}
@@ -17,7 +19,9 @@ const Navbar: FC = () => {
           <UserButton afterSignOutUrl="/" />
         </div>
       ) : (
-        <Link href="/">Login</Link>
+        <SignInButton>
+          <button className={styles["sign-in"]}>Sign-in</button>
+        </SignInButton>
       )}
     </nav>
   );

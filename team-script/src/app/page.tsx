@@ -7,5 +7,9 @@ export default function Home() {
   if (userId) {
     redirect("/dashboard");
   }
-  return <main className="">Home page</main>;
+  return (
+    <main className="flex min-h-screen justify-center items-center">
+      Home page
+    </main>
+  );
 }

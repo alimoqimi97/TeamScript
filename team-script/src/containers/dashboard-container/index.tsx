@@ -5,9 +5,18 @@ import { Editor } from "@monaco-editor/react";
 import * as Y from "yjs";
 import { WebrtcProvider } from "y-webrtc";
 import { MonacoBinding } from "y-monaco";
+import { useUser } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 
 const DashboardContainer: FC = () => {
+  const { isSignedIn } = useUser();
   const editorRef = useRef<any>(null);
+  const HOME_ROUTE: string = "/";
+
+  if (!isSignedIn) {
+    redirect(HOME_ROUTE);
+  }
+
   const handleEditorMount = (editor: any, monaco: any) => {
     editorRef.current = editor;
     // initialize YJS
