@@ -1,9 +1,15 @@
-import DashboardContainer from "@/containers/dashboard-container";
+import { auth } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
 
 export default function Home() {
+  const { userId } = auth();
+
+  if (userId) {
+    redirect("/dashboard");
+  }
   return (
-    <main className="">
-      <DashboardContainer />
+    <main className="flex min-h-screen justify-center items-center">
+      Home page
     </main>
   );
 }
