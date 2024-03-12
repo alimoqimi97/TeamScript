@@ -1,9 +1,9 @@
-// import DashboardContainer from "@/containers/dashboard-container";
+import DashboardContainer from "@/containers/dashboard-container";
 
 export default function DashboardPage() {
   return (
     <main className="">
-      {/* <DashboardContainer /> */}
+      <DashboardContainer />
     </main>
   );
 }
