@@ -16,7 +16,7 @@ const Navbar: FC = () => {
         <div className="w-auto flex justify-between items-center">
           {" "}
           <Link href="/dashboard">Dashboard</Link>
-          <UserButton afterSignOutUrl="/" />
+          <UserButton afterSignOutUrl="/"  />
         </div>
       ) : (
         <SignInButton>
