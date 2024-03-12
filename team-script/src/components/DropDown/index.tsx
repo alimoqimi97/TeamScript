@@ -19,13 +19,14 @@ const DropDown: FC<IDropDown> = ({
     setValue(defaultValue);
   }, [defaultValue]);
 
-  const items = options?.map((option: string) => (
+  const items = options?.map((option: string, index: number) => (
     <a
       href="#"
       className="text-gray-700 block px-4 py-2 text-sm"
       role="menuitem"
       tabIndex={-1}
       id="menu-item-0"
+      key={index?.toString()}
     >
       {option}
     </a>
