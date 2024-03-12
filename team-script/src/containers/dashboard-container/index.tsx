@@ -7,6 +7,7 @@ import { WebrtcProvider } from "y-webrtc";
 import { MonacoBinding } from "y-monaco";
 import { useUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
+import styles from "./styles.module.scss";
 
 const DashboardContainer: FC = () => {
   const { isSignedIn } = useUser();
@@ -37,13 +38,39 @@ const DashboardContainer: FC = () => {
   };
 
   return (
-    <section>
+    <section className={styles["dashboard-container"]}>
       <Editor
         height="100vh"
         width="100vw"
         theme="vs-dark"
         language="typescript"
         onMount={handleEditorMount}
+        options={{
+          autoIndent: "full",
+          contextmenu: true,
+          fontFamily: "monospace",
+          fontSize: 13,
+          lineHeight: 24,
+          hideCursorInOverviewRuler: true,
+          matchBrackets: "always",
+          minimap: {
+            enabled: true,
+            maxColumn: 1,
+            side: "right",
+            size: "fill",
+            renderCharacters: true,
+            scale: 1,
+          },
+          scrollbar: {
+            horizontalSliderSize: 4,
+            verticalSliderSize: 18,
+          },
+          selectOnLineNumbers: true,
+          roundedSelection: false,
+          readOnly: false,
+          cursorStyle: "line",
+          automaticLayout: true,
+        }}
       />
     </section>
   );
