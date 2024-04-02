@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useRef } from "react";
+import { FC, useEffect, useRef } from "react";
 import { Editor } from "@monaco-editor/react";
 import * as Y from "yjs";
 import { WebrtcProvider } from "y-webrtc";
@@ -8,6 +8,13 @@ import { MonacoBinding } from "y-monaco";
 import { useUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 import styles from "./styles.module.scss";
+
+import { MonacoServices } from "@codingame/monaco-languageclient";
+
+import * as monaco from "monaco-editor";
+import { loader } from "@monaco-editor/react";
+
+loader.config({ monaco });
 
 const DashboardContainer: FC = () => {
   const { isSignedIn } = useUser();
@@ -24,9 +31,13 @@ const DashboardContainer: FC = () => {
     const doc = new Y.Doc(); // collection of shared objects -> Text
 
     // Connect to peers (or start connection) with WebRTC
-    const provider = new WebrtcProvider("TeamScriptRoom", doc);
+    const provider = new WebrtcProvider("TeamScriptRoom", doc, {
+      signaling: ["ws://localhost:4444"],
+    });
     const text = doc.getText("code"); // doc {"code": "what ide is showing."}
-
+    provider.on("synced", (synced) => {
+      console.log("synced!", synced);
+    });
     // Bind Yjs to monaco
     const binding = new MonacoBinding(
       text,
@@ -37,13 +48,17 @@ const DashboardContainer: FC = () => {
     console.log(provider.awareness);
   };
 
+  useEffect(() => {
+    MonacoServices.install(monaco);
+  }, []);
+
   return (
     <section className={styles["dashboard-container"]}>
       <Editor
         height="100vh"
         width="100vw"
         theme="vs-dark"
-        language="typescript"
+        language="cpp"
         onMount={handleEditorMount}
         options={{
           autoIndent: "full",

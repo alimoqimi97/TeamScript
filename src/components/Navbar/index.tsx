@@ -9,14 +9,12 @@ const Navbar: FC = () => {
 
   return (
     <nav className={styles["navbar"]}>
-      <Link href="/">
-        TeamScript
-      </Link>
+      <Link href="/">TeamScript</Link>
       {isLoaded && user ? (
-        <div className="w-auto flex justify-between items-center">
+        <div className="w-auto flex justify-between items-center min-w-14">
           {" "}
           <Link href="/dashboard">Dashboard</Link>
-          <UserButton afterSignOutUrl="/"  />
+          <UserButton afterSignOutUrl="/" />
         </div>
       ) : (
         <SignInButton>
