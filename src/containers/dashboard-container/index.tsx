@@ -58,7 +58,7 @@ const DashboardContainer: FC = () => {
         height="100vh"
         width="100vw"
         theme="vs-dark"
-        language="cpp"
+        language="javascript"
         onMount={handleEditorMount}
         options={{
           autoIndent: "full",

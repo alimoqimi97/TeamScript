@@ -1,4 +1,6 @@
-export const languages = [
+import { Language } from "@/types";
+
+export const LANGUAGES: Language[] = [
   { id: 1, name: "apex" },
   { id: 2, name: "azcli" },
   { id: 3, name: "bat" },
@@ -17,7 +19,7 @@ export const languages = [
   { id: 16, name: "html" },
   { id: 17, name: "ini" },
   { id: 18, name: "java" },
-  { id: 19, name: "javascript" },
+  // { id: 19, name: "javascript" },
   { id: 20, name: "json" },
   { id: 21, name: "kotlin" },
   { id: 22, name: "less" },
@@ -51,7 +53,7 @@ export const languages = [
   { id: 50, name: "st" },
   { id: 51, name: "swift" },
   { id: 52, name: "tcl" },
-  { id: 53, name: "typescript" },
+  // { id: 53, name: "typescript" },
   { id: 54, name: "vb" },
   { id: 55, name: "xml" },
   { id: 56, name: "yaml" },
