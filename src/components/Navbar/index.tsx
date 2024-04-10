@@ -2,8 +2,8 @@
 import { FC } from "react";
 import Link from "next/link";
 import { UserButton, useUser, SignInButton } from "@clerk/nextjs";
-import styles from "./styles.module.scss";
 import LanguageSelector from "../LanguageSelector";
+import styles from "./styles.module.scss";
 
 const Navbar: FC = () => {
   const { user, isLoaded } = useUser();

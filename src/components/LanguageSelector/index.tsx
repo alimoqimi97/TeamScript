@@ -13,7 +13,7 @@ const LanguageSelector: FC = () => {
   return (
     <DropDown
       defaultValue={language}
-      onChange={(value: string) => setLanguage?.(value)}
+      onChange={(value: string) => {setLanguage?.(value);}}
       options={languages}
     />
   );

@@ -1,63 +1,56 @@
 "use client";
 
 import { FC, useEffect, useRef } from "react";
-import { Editor } from "@monaco-editor/react";
-import * as Y from "yjs";
-import { WebrtcProvider } from "y-webrtc";
-import { MonacoBinding } from "y-monaco";
+import * as monaco from "monaco-editor";
+
 import { useUser } from "@clerk/nextjs";
 import { redirect } from "next/navigation";
 
 import { MonacoServices } from "@codingame/monaco-languageclient";
 
-import * as monaco from "monaco-editor";
-import { loader } from "@monaco-editor/react";
-import { GlobalProvider, useGlobalContext } from "@/contexts/useGlobalContext";
+import { GlobalProvider } from "@/contexts/useGlobalContext";
+import MonacoCodeEditor from "@/components/MonacoEditor";
 import styles from "./styles.module.scss";
 
-loader.config({ monaco });
-
 const DashboardContainer: FC = () => {
-  const { language } = useGlobalContext();
   const { isSignedIn } = useUser();
-  const editorRef = useRef<any>(null);
   const HOME_ROUTE: string = "/";
 
   if (!isSignedIn) {
     redirect(HOME_ROUTE);
   }
 
-  const handleEditorMount = (editor: any, monaco: any) => {
-    editorRef.current = editor;
-    // initialize YJS
-    const doc = new Y.Doc(); // collection of shared objects -> Text
+  // const handleEditorMount = (editor: any, monaco: any) => {
+  //   editorRef.current = editor;
+  //   // initialize YJS
+  //   const doc = new Y.Doc(); // collection of shared objects -> Text
 
-    // Connect to peers (or start connection) with WebRTC
-    const provider = new WebrtcProvider("TeamScriptRoom", doc, {
-      signaling: ["ws://localhost:4444"],
-    });
-    const text = doc.getText("code"); // doc {"code": "what ide is showing."}
-    provider.on("synced", (synced) => {
-      console.log("synced!", synced);
-    });
-    // Bind Yjs to monaco
-    const binding = new MonacoBinding(
-      text,
-      editorRef.current.getModel(),
-      new Set([editorRef.current]),
-      provider.awareness
-    );
-    console.log(provider.awareness);
-  };
+  //   // Connect to peers (or start connection) with WebRTC
+  //   const provider = new WebrtcProvider("TeamScriptRoom", doc, {
+  //     signaling: ["ws://localhost:4444"],
+  //   });
+  //   const text = doc.getText("code"); // doc {"code": "what ide is showing."}
+  //   provider.on("synced", (synced) => {
+  //     console.log("synced!", synced);
+  //   });
+  //   // Bind Yjs to monaco
+  //   const binding = new MonacoBinding(
+  //     text,
+  //     editorRef.current.getModel(),
+  //     new Set([editorRef.current]),
+  //     provider.awareness
+  //   );
+  //   console.log(provider.awareness);
+  // };
 
   useEffect(() => {
     MonacoServices.install(monaco);
   }, []);
 
   return (
-    <GlobalProvider>
-      <section className={styles["dashboard-container"]}>
-        <Editor
+    <section className={styles["dashboard-container"]}>
+      <MonacoCodeEditor />
+      {/* <Editor
           height="100vh"
           width="100vw"
           theme="vs-dark"
@@ -89,9 +82,8 @@ const DashboardContainer: FC = () => {
             cursorStyle: "line",
             automaticLayout: true,
           }}
-        />
-      </section>
-    </GlobalProvider>
+        /> */}
+    </section>
   );
 };
 

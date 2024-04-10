@@ -1,43 +1,52 @@
-import Editor, { monaco } from "@monaco-editor/react";
-import MonacoEditor from 'react-monaco-editor';
-import {
-  MonacoToProtocolConverter,
-  ProtocolToMonacoConverter,
-} from "@codingame/monaco-languageclient/lib/monaco-converter";
 import { useState, useRef } from "react";
-import { integer } from "@codingame/monaco-languageclient";
-const path = require("path");
+import * as monaco from "monaco-editor";
+import { Editor } from "@monaco-editor/react";
+// import MonacoEditor from "react-monaco-editor";
+import * as Y from "yjs";
+import { WebrtcProvider } from "y-webrtc";
+import { MonacoBinding } from "y-monaco";
+import { loader } from "@monaco-editor/react";
+import { useGlobalContext } from "@/contexts/useGlobalContext";
 
-// https://github.com/microsoft/monaco-editor-samples/blob/master/electron-amd-nodeIntegration/electron-index.html
-function uriFromPath(_path) {
-  let pathName = path.resolve(_path).replace(/\\/g, "/");
+loader.config({ monaco });
 
-  if (pathName.length > 0 && pathName.charAt(0) !== "/") {
-    pathName = `/${pathName}`;
-  }
-  return encodeURI(`file://${pathName}`);
-}
 
-// monaco.config({
-//   urls: {
-//     monacoLoader: uriFromPath(
-//       path.join(__dirname, "../node_modules/monaco-editor/min/vs/loader.js")
-//     ),
-//     monacoBase: uriFromPath(
-//       path.join(__dirname, "../node_modules/monaco-editor/min/vs")
-//     ),
-//   },
-// });
+
 
 export default function MonacoCodeEditor() {
   const [isEditorReady, setIsEditorReady] = useState(false);
+  const { language } = useGlobalContext();
   // const [code, setCode] = useState<string>('')
-  const valueGetter = useRef(null);
+  const editorRef = useRef<any>(null);
+  // const valueGetter = useRef(null);
 
-  function handleEditorDidMount(_valueGetter: any) {
-    setIsEditorReady(true);
-    valueGetter.current = _valueGetter;
-  }
+  const handleEditorMount = (editor: any, monaco: any) => {
+    editorRef.current = editor;
+    // initialize YJS
+    const doc = new Y.Doc(); // collection of shared objects -> Text
+
+    // Connect to peers (or start connection) with WebRTC
+    const provider = new WebrtcProvider("TeamScriptRoom", doc, {
+      signaling: ["ws://localhost:4444"],
+    });
+    const text = doc.getText("code"); // doc {"code": "what ide is showing."}
+    provider.on("synced", (synced) => {
+      console.log("synced!", synced);
+    });
+    // Bind Yjs to monaco
+    const binding = new MonacoBinding(
+      text,
+      editorRef.current.getModel(),
+      new Set([editorRef.current]),
+      provider.awareness
+    );
+    console.log(provider.awareness);
+  };
+
+  // function handleEditorDidMount(_valueGetter: any) {
+  //   setIsEditorReady(true);
+  //   valueGetter.current = _valueGetter;
+  // }
 
   // const options = {
   //   selectOnLineNumbers: true
@@ -50,16 +59,45 @@ export default function MonacoCodeEditor() {
   // const onChange = (newValue, e) => {
   //   console.log('onChange', newValue, e);
   // }
+
+  console.log(language);
+  
+  
   return (
     <>
       <Editor
-        height="100%"
-        width="100%"
-        language="javascript"
-        theme="dark"
-        value="// write your code here"
-        onMount={handleEditorDidMount}
-      />
+          height="100vh"
+          width="100vw"
+          theme="vs-dark"
+          language={language}
+          onMount={handleEditorMount}
+          options={{
+            autoIndent: "full",
+            contextmenu: true,
+            fontFamily: "monospace",
+            fontSize: 13,
+            lineHeight: 24,
+            hideCursorInOverviewRuler: true,
+            matchBrackets: "always",
+            minimap: {
+              enabled: true,
+              maxColumn: 1,
+              side: "right",
+              size: "fill",
+              renderCharacters: true,
+              scale: 1,
+            },
+            scrollbar: {
+              horizontalSliderSize: 4,
+              verticalSliderSize: 18,
+            },
+            selectOnLineNumbers: true,
+            roundedSelection: false,
+            readOnly: false,
+            cursorStyle: "line",
+            automaticLayout: true,
+          }}
+        />
       {/* <MonacoEditor
         width="800"
         height="600"

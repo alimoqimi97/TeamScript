@@ -1,6 +1,6 @@
-import { LANGUAGES } from "@/constants";
-import { Language } from "@/types";
-import React, {
+'use client'
+
+import {
   createContext,
   useReducer,
   useContext,
@@ -8,14 +8,15 @@ import React, {
   useMemo,
   ReactNode,
 } from "react";
+import { LANGUAGES } from "@/constants";
 
 interface IState {
   language: string;
-  setLanguage?: (language: string) => void
+  setLanguage?: (language: string) => void;
 }
 
 const initialContextValue: IState = {
-  language: LANGUAGES[0]?.name ?? 'javascript',
+  language: LANGUAGES[0]?.name ?? "python",
 };
 
 const GlobalContext = createContext<IState>(initialContextValue);
@@ -46,6 +47,7 @@ export const GlobalProvider: FC<{ children: ReactNode }> = ({ children }) => {
     () => ({
       ...state,
       setLanguage,
+      dispatch
     }),
     [state]
   );
