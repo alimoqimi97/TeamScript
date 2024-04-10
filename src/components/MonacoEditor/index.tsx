@@ -18,20 +18,20 @@ function uriFromPath(_path) {
   return encodeURI(`file://${pathName}`);
 }
 
-monaco.config({
-  urls: {
-    monacoLoader: uriFromPath(
-      path.join(__dirname, "../node_modules/monaco-editor/min/vs/loader.js")
-    ),
-    monacoBase: uriFromPath(
-      path.join(__dirname, "../node_modules/monaco-editor/min/vs")
-    ),
-  },
-});
+// monaco.config({
+//   urls: {
+//     monacoLoader: uriFromPath(
+//       path.join(__dirname, "../node_modules/monaco-editor/min/vs/loader.js")
+//     ),
+//     monacoBase: uriFromPath(
+//       path.join(__dirname, "../node_modules/monaco-editor/min/vs")
+//     ),
+//   },
+// });
 
 export default function MonacoCodeEditor() {
   const [isEditorReady, setIsEditorReady] = useState(false);
-  const [code, setCode] = useState<string>('')
+  // const [code, setCode] = useState<string>('')
   const valueGetter = useRef(null);
 
   function handleEditorDidMount(_valueGetter: any) {
@@ -39,28 +39,28 @@ export default function MonacoCodeEditor() {
     valueGetter.current = _valueGetter;
   }
 
-  const options = {
-    selectOnLineNumbers: true
-  };
+  // const options = {
+  //   selectOnLineNumbers: true
+  // };
 
-  const editorDidMount = (editor, monaco) => {
-    console.log('editorDidMount', editor);
-    editor.focus();
-  }
-  const onChange = (newValue, e) => {
-    console.log('onChange', newValue, e);
-  }
+  // const editorDidMount = (editor, monaco) => {
+  //   console.log('editorDidMount', editor);
+  //   editor.focus();
+  // }
+  // const onChange = (newValue, e) => {
+  //   console.log('onChange', newValue, e);
+  // }
   return (
     <>
-      {/* <Editor
+      <Editor
         height="100%"
         width="100%"
         language="javascript"
         theme="dark"
         value="// write your code here"
         onMount={handleEditorDidMount}
-      /> */}
-      <MonacoEditor
+      />
+      {/* <MonacoEditor
         width="800"
         height="600"
         language="javascript"
@@ -69,7 +69,7 @@ export default function MonacoCodeEditor() {
         options={options}
         onChange={onChange}
         editorDidMount={editorDidMount}
-      />
+      /> */}
     </>
   );
 }

@@ -4,23 +4,25 @@ import React, {
   createContext,
   useReducer,
   useContext,
-  Dispatch,
   FC,
   useMemo,
   ReactNode,
 } from "react";
 
 interface IState {
-  language: Language;
+  language: string;
+  setLanguage?: (language: string) => void
 }
 
 const initialContextValue: IState = {
-  language: LANGUAGES[0],
+  language: LANGUAGES[0]?.name ?? 'javascript',
 };
 
 const GlobalContext = createContext<IState>(initialContextValue);
 
-type Action = { type: "SET_LANGUAGE "; payload: Language };
+export const useGlobalContext = () => useContext(GlobalContext);
+
+type Action = { type: "SET_LANGUAGE "; payload: string };
 
 function globalReducer(state: IState, action: Action) {
   switch (action.type) {
@@ -34,10 +36,10 @@ function globalReducer(state: IState, action: Action) {
   }
 }
 
-export const MemberProvider: FC<{ children: ReactNode }> = ({ children }) => {
+export const GlobalProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(globalReducer, initialContextValue);
 
-  const setLanguage = (language: Language) =>
+  const setLanguage = (language: string) =>
     dispatch({ type: "SET_LANGUAGE ", payload: language });
 
   const value = useMemo(
@@ -51,24 +53,4 @@ export const MemberProvider: FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <GlobalContext.Provider value={value}>{children}</GlobalContext.Provider>
   );
-};
-
-type SelectorFunction<T> = (state: IState) => T;
-
-export const useMemberState = <T extends {}>(
-  selector?: Maybe<SelectorFunction<T>>
-) => {
-  const state = useContext(GlobalContext);
-  if (!state) throw new Error("MemberStateContext cannot be provided.");
-
-  if (!selector) {
-    throw new Error("Cannot resolve selector.");
-  }
-  return selector(state);
-};
-
-export const useMemberDispatch = () => {
-  const dispatch = useContext(MemberDispatchContext);
-  if (!dispatch) throw new Error("MemberDispatchContext cannot be provided.");
-  return dispatch;
 };
