@@ -13,7 +13,7 @@ const Navbar: FC = () => {
       <Link href="/">TeamScript</Link>
       {isLoaded && user ? (
         <div className={styles["actions"]}>
-          <LanguageSelector /> <Link href="/dashboard">Dashboard</Link>
+          <LanguageSelector /> <Link href="/dashboard" prefetch={false}>Dashboard</Link>
           <UserButton afterSignOutUrl="/" />
         </div>
       ) : (
