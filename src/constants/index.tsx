@@ -108,4 +108,5 @@ export const monacoThemes = {
   idlefingers: "idleFingers",
   krtheme: "krTheme",
   monoindustrial: "monoindustrial",
+  vsDark: "vs-dark",
 };

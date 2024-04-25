@@ -14,14 +14,14 @@ const DropDown: FC<IDropDown> = ({
   onChange,
   defaultValue = "",
 }) => {
-  const [value, setValue] = useState<string>("python");
+  const [value, setValue] = useState<string>("");
   const [isShown, setIsShown] = useState<boolean>(false);
 
   useEffect(() => {
     setValue(defaultValue);
   }, [defaultValue]);
 
-  useEffect(() => setValue("python"), []);
+  useEffect(() => setValue(defaultValue), []);
 
   const handleItemSelect = (option: string) => {
     onChange?.(option);

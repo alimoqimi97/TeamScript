@@ -8,6 +8,6 @@
     @apply py-1 flex justify-center items-center text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 hover:text-blue-900 font-semibold transition ease-in duration-300 md:p-0 dark:text-white md:dark:text-blue-500;
   }
   .actions {
-    @apply w-auto flex justify-between items-center min-w-60;
+    @apply w-auto flex justify-between items-center min-w-96;
   }
 }

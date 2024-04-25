@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 import {
   createContext,
@@ -13,17 +13,22 @@ import { LANGUAGES } from "@/constants";
 interface IState {
   language: string;
   setLanguage?: (language: string) => void;
+  theme: string;
+  setTheme?: (theme: string) => void;
 }
 
 const initialContextValue: IState = {
   language: LANGUAGES[0]?.name ?? "python",
+  theme: "vs-dark",
 };
 
 const GlobalContext = createContext<IState>(initialContextValue);
 
 export const useGlobalContext = () => useContext(GlobalContext);
 
-type Action = { type: "SET_LANGUAGE "; payload: string };
+type Action =
+  | { type: "SET_LANGUAGE "; payload: string }
+  | { type: "SET_THEME"; payload: string };
 
 function globalReducer(state: IState, action: Action) {
   switch (action.type) {
@@ -31,6 +36,11 @@ function globalReducer(state: IState, action: Action) {
       return {
         ...state,
         language: action.payload,
+      };
+    case "SET_THEME":
+      return {
+        ...state,
+        theme: action.payload,
       };
     default:
       throw new Error("Unhandled Action type.");
@@ -43,11 +53,14 @@ export const GlobalProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const setLanguage = (language: string) =>
     dispatch({ type: "SET_LANGUAGE ", payload: language });
 
+  const setTheme = (theme: string) =>
+    dispatch({ type: "SET_THEME", payload: theme });
+
   const value = useMemo(
     () => ({
       ...state,
       setLanguage,
-      dispatch
+      setTheme
     }),
     [state]
   );

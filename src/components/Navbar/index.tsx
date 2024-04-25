@@ -4,6 +4,7 @@ import Link from "next/link";
 import { UserButton, useUser, SignInButton } from "@clerk/nextjs";
 import LanguageSelector from "../LanguageSelector";
 import styles from "./styles.module.scss";
+import ThemeSelector from "../ThemeSelector";
 
 const Navbar: FC = () => {
   const { user, isLoaded } = useUser();
@@ -13,7 +14,11 @@ const Navbar: FC = () => {
       <Link href="/">TeamScript</Link>
       {isLoaded && user ? (
         <div className={styles["actions"]}>
-          <LanguageSelector /> <Link href="/dashboard" prefetch={false}>Dashboard</Link>
+          <ThemeSelector />
+          <LanguageSelector />
+          <Link href="/dashboard" prefetch={false}>
+            Dashboard
+          </Link>
           <UserButton afterSignOutUrl="/" />
         </div>
       ) : (
