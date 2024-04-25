@@ -1,32 +1,33 @@
-"use client";
-
-import { FC, useRef } from "react";
+import { useRef } from "react";
+import * as monaco from "monaco-editor";
 import { Editor } from "@monaco-editor/react";
 import * as Y from "yjs";
 import { WebrtcProvider } from "y-webrtc";
 import { MonacoBinding } from "y-monaco";
-import { useUser } from "@clerk/nextjs";
-import { redirect } from "next/navigation";
-import styles from "./styles.module.scss";
+import { loader } from "@monaco-editor/react";
+import { useGlobalContext } from "@/contexts/useGlobalContext";
 
-const DashboardContainer: FC = () => {
-  const { isSignedIn } = useUser();
+loader.config({ monaco });
+
+export default function MonacoCodeEditor() {
+  const { language, theme } = useGlobalContext();
   const editorRef = useRef<any>(null);
-  const HOME_ROUTE: string = "/";
-
-  if (!isSignedIn) {
-    redirect(HOME_ROUTE);
-  }
 
   const handleEditorMount = (editor: any, monaco: any) => {
+    console.log(monaco);
+
     editorRef.current = editor;
     // initialize YJS
     const doc = new Y.Doc(); // collection of shared objects -> Text
 
     // Connect to peers (or start connection) with WebRTC
-    const provider = new WebrtcProvider("TeamScriptRoom", doc);
+    const provider = new WebrtcProvider("TeamScriptRoom", doc, {
+      signaling: ["ws://localhost:4444"],
+    });
     const text = doc.getText("code"); // doc {"code": "what ide is showing."}
-
+    provider.on("synced", (synced) => {
+      console.log("synced!", synced);
+    });
     // Bind Yjs to monaco
     const binding = new MonacoBinding(
       text,
@@ -38,12 +39,12 @@ const DashboardContainer: FC = () => {
   };
 
   return (
-    <section className={styles["dashboard-container"]}>
+    <>
       <Editor
         height="100vh"
         width="100vw"
-        theme="vs-dark"
-        language="typescript"
+        theme={theme}
+        language={language}
         onMount={handleEditorMount}
         options={{
           autoIndent: "full",
@@ -72,8 +73,6 @@ const DashboardContainer: FC = () => {
           automaticLayout: true,
         }}
       />
-    </section>
+    </>
   );
-};
-
-export default DashboardContainer;
+}

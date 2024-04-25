@@ -1,7 +1,9 @@
-export const languages = [
-  { id: 1, name: "apex" },
-  { id: 2, name: "azcli" },
-  { id: 3, name: "bat" },
+import { Language } from "@/types";
+
+export const LANGUAGES: Language[] = [
+  { id: 1, name: "python" },
+  { id: 2, name: "javascript" },
+  { id: 3, name: "typescript" },
   { id: 4, name: "c" },
   { id: 5, name: "clojure" },
   { id: 6, name: "coffeescript" },
@@ -17,7 +19,7 @@ export const languages = [
   { id: 16, name: "html" },
   { id: 17, name: "ini" },
   { id: 18, name: "java" },
-  { id: 19, name: "javascript" },
+  { id: 19, name: "azcli" },
   { id: 20, name: "json" },
   { id: 21, name: "kotlin" },
   { id: 22, name: "less" },
@@ -35,7 +37,7 @@ export const languages = [
   { id: 34, name: "powerquery" },
   { id: 35, name: "powershell" },
   { id: 36, name: "pug" },
-  { id: 37, name: "python" },
+  { id: 37, name: "apex" },
   { id: 38, name: "r" },
   { id: 39, name: "razor" },
   { id: 40, name: "redis" },
@@ -51,7 +53,7 @@ export const languages = [
   { id: 50, name: "st" },
   { id: 51, name: "swift" },
   { id: 52, name: "tcl" },
-  { id: 53, name: "typescript" },
+  { id: 53, name: "bat" },
   { id: 54, name: "vb" },
   { id: 55, name: "xml" },
   { id: 56, name: "yaml" },
@@ -106,4 +108,5 @@ export const monacoThemes = {
   idlefingers: "idleFingers",
   krtheme: "krTheme",
   monoindustrial: "monoindustrial",
+  vsDark: "vs-dark",
 };
