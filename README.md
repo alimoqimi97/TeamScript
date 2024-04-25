@@ -1,7 +1,6 @@
 # TeamScript
-![demo-gif](https://github.com/alimoqimi97/TeamScript/assets/41248132/edcedb4d-c700-447c-a85d-cc5b764094bc)
-
 TeamScript is a collaborative online code editor that is implemented with nextjs 14, tailwind and Typescript.
+![CollaborativeCodeEditor](https://github.com/alimoqimi97/TeamScript/assets/41248132/8535e61d-febf-493a-8b29-d1248d9f8163)
 
 # Technologies:
 - Nextjs 14
