@@ -1,4 +1,5 @@
 import { FC, useEffect, useState } from "react";
+import styles from "./styles.module.scss";
 
 export interface IDropDown {
   title?: string;
@@ -13,11 +14,20 @@ const DropDown: FC<IDropDown> = ({
   onChange,
   defaultValue = "",
 }) => {
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState<string>("");
+  const [isShown, setIsShown] = useState<boolean>(false);
 
   useEffect(() => {
     setValue(defaultValue);
   }, [defaultValue]);
+
+  useEffect(() => setValue(defaultValue), []);
+
+  const handleItemSelect = (option: string) => {
+    onChange?.(option);
+    setValue(option);
+    setIsShown(false);
+  };
 
   const items = options?.map((option: string, index: number) => (
     <a
@@ -27,22 +37,23 @@ const DropDown: FC<IDropDown> = ({
       tabIndex={-1}
       id="menu-item-0"
       key={index?.toString()}
+      onClick={() => handleItemSelect(option)}
     >
       {option}
     </a>
   ));
 
   return (
-    <div className="relative inline-block text-left">
+    <div className={styles['drop-down']}>
       <div>
         <button
           type="button"
-          className="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
           id="menu-button"
           aria-expanded="true"
           aria-haspopup="true"
+          onClick={() => setIsShown(!isShown)}
         >
-          {title}
+          {title ?? value}
           <svg
             className="-mr-1 h-5 w-5 text-gray-400"
             viewBox="0 0 20 20"
@@ -58,15 +69,19 @@ const DropDown: FC<IDropDown> = ({
         </button>
       </div>
 
-      <div
-        className="absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-gray-100 rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
-        role="menu"
-        aria-orientation="vertical"
-        aria-labelledby="menu-button"
-        tabIndex={-1}
-      >
-        {items}
-      </div>
+      {isShown ? (
+        <div
+          className={styles["menu"]}
+          role="menu"
+          aria-orientation="vertical"
+          aria-labelledby="menu-button"
+          tabIndex={-1}
+        >
+          {items}
+        </div>
+      ) : (
+        <></>
+      )}
     </div>
   );
 };
