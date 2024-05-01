@@ -4,9 +4,8 @@
 
 const nextConfig = {
     reactStrictMode: true,
-    // webpack: {
-        
-    // }
+    // transpilePackages: ['node:http','socket.io'],
+    
 };
 
 export default nextConfig;

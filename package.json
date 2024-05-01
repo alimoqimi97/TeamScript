@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --experimental-https",
+    "dev": "node server.js",
     "build": "next build",
-    "start": "next start",
+    "start": "NODE_ENV=production node server.js",
     "lint": "next lint"
   },
   "dependencies": {
@@ -19,6 +19,8 @@
     "react-dom": "^18",
     "react-monaco-editor": "^0.55.0",
     "sass": "^1.71.1",
+    "socket.io": "^4.7.5",
+    "socket.io-client": "^4.7.5",
     "y-monaco": "^0.1.5",
     "y-webrtc": "^10.3.0",
     "yjs": "^13.6.14"
