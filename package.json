@@ -19,6 +19,7 @@
     "react-dom": "^18",
     "react-monaco-editor": "^0.55.0",
     "sass": "^1.71.1",
+    "simple-peer": "^9.11.1",
     "socket.io": "^4.7.5",
     "socket.io-client": "^4.7.5",
     "y-monaco": "^0.1.5",
