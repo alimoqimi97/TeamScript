@@ -2,7 +2,7 @@ import { authMiddleware, redirectToSignIn } from "@clerk/nextjs";
 import { NextResponse } from "next/server";
 
 export default authMiddleware({
-  publicRoutes: ["/"],
+  publicRoutes: ["/", '/socket-test'],
   afterAuth(auth, req, evt) {
     // Handle users who aren't authenticated
     if (!auth.userId && !auth.isPublicRoute) {
