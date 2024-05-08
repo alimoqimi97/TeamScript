@@ -33,11 +33,15 @@ app.prepare().then(() => {
     });
 
     socket.on('join-room', (roomId, userId) => {
-      console.log(roomId, userId)
-
+      console.log(`user ${userId} joined the room ${roomId}`);
+      
       socket.join(roomId);
 
       socket.to(roomId).broadcast.emit('user-connected', userId);
+
+      socket.on('disconnect', () => {
+        socket.to(roomId).broadcast.emit('user-disconnected',userId)
+      })
     })
 
     // socket.on("calluser", ({ userToCall, signalData, from, name }) => {

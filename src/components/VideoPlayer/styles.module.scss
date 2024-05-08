@@ -1,0 +1,12 @@
+.video-player {
+    @apply min-w-14 min-h-28;
+
+    h5 {
+        @apply flex justify-center items-center;
+    }
+
+
+    video {
+        @apply min-w-9 min-h-11 border border-solid border-gray-300 rounded-3xl max-w-64 max-h-64 shadow-2xl;
+    }
+}

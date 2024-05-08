@@ -1,6 +1,32 @@
-import { FC } from "react";
+import { FC, SyntheticEvent, useEffect, useRef } from "react";
+import styles from './styles.module.scss'
+export interface IVideoPlayer {
+  id: string;
+  stream: MediaStream;
+}
 
-const VideoPlayer: FC = () => {
-  return <div>Video player</div>;
+// type VideoProps = JSX.IntrinsicElements["video"] & IVideoPlayer;
+
+const VideoPlayer: FC<IVideoPlayer> = ({ id, stream }) => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef?.current) {
+      videoRef.current.srcObject = stream;
+    }
+  }, [videoRef?.current]);
+
+  return (
+    <div className={styles['video-player']}>
+      <h5>User ID: {id}</h5>
+      <video
+        ref={videoRef}
+        onLoadedMetadata={(event: SyntheticEvent<HTMLVideoElement, Event>) =>
+          event.currentTarget.play()
+        }
+        muted={true}
+      />
+    </div>
+  );
 };
 export default VideoPlayer;

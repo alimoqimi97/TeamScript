@@ -9,6 +9,9 @@ import { redirect } from "next/navigation";
 import { MonacoServices } from "@codingame/monaco-languageclient";
 import MonacoCodeEditor from "@/components/MonacoEditor";
 import styles from "./styles.module.scss";
+import { SocketProvider } from "@/contexts/useSocketContext";
+import UsersVideos from "@/components/UsersVideos";
+import VideoPlayer from "@/components/VideoPlayer";
 
 const DashboardContainer: FC = () => {
   const { isSignedIn } = useUser();
@@ -23,9 +26,12 @@ const DashboardContainer: FC = () => {
   }, []);
 
   return (
-    <section className={styles["dashboard-container"]}>
-      <MonacoCodeEditor />
-    </section>
+    <SocketProvider>
+      <section className={styles["dashboard-container"]}>
+        {/* <MonacoCodeEditor /> */}
+        <UsersVideos />
+      </section>
+    </SocketProvider>
   );
 };
 

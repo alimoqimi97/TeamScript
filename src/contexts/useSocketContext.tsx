@@ -9,18 +9,27 @@ import {
   ReactNode,
   useEffect,
   useRef,
+  RefObject,
 } from "react";
-import Peer from "simple-peer";
+import Peer, { MediaConnection } from "peerjs";
 import { socket } from "@/socket";
+import { User } from "@/types";
+import { initialUser } from "@/constants";
 
 interface IState {
   stream?: MediaStream;
   socketId?: string;
+  myVideo?: RefObject<HTMLVideoElement>;
+  users?: User[];
+  addUser?: (user: User) => void;
+  removeUser?: (user: User) => void;
 }
 
 const initialContextValue: IState = {
   stream: undefined,
   socketId: "",
+  myVideo: undefined,
+  users: [],
 };
 
 const SocketContext = createContext<IState>(initialContextValue);
@@ -29,7 +38,10 @@ export const useSocketContext = () => useContext(SocketContext);
 
 type Action =
   | { type: "SET_STREAM"; payload: MediaStream }
-  | { type: "SET_SOCKET_ID"; payload: string };
+  | { type: "SET_SOCKET_ID"; payload: string }
+  | { type: "SET_MY_VIDEO"; payload?: RefObject<HTMLVideoElement> }
+  | { type: "ADD_USER"; payload?: User }
+  | { type: "REMOVE_USER"; payload?: User };
 
 function socketReducer(state: IState, action: Action) {
   switch (action.type) {
@@ -49,6 +61,39 @@ function socketReducer(state: IState, action: Action) {
 
       return newState;
     }
+    case "SET_MY_VIDEO": {
+      const newState: IState = {
+        ...state,
+        myVideo: action.payload,
+      };
+
+      return newState;
+    }
+    case "ADD_USER": {
+      const users: User[] = state.users ?? [];
+      users?.push(action?.payload ?? initialUser);
+
+      const newState: IState = {
+        ...state,
+        users,
+      };
+
+      return newState;
+    }
+    case "REMOVE_USER": {
+      const users: User[] = state?.users ?? [];
+
+      const updatedUsers: User[] = users?.filter(
+        (user: User) => user?.id !== action?.payload?.id
+      );
+
+      const newState: IState = {
+        ...state,
+        users: updatedUsers,
+      };
+
+      return newState;
+    }
 
     default:
       throw new Error("Unhandled Action type.");
@@ -60,12 +105,18 @@ export const SocketProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const myVideo = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+    const peer = new Peer({
+      host: "/",
+      port: 3000,
+    });
+
     navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((currentStream: MediaStream) => {
         const action: Action = { type: "SET_STREAM", payload: currentStream };
 
         dispatch(action);
+
         if (myVideo?.current) {
           myVideo.current.srcObject = currentStream;
         }
@@ -77,20 +128,45 @@ export const SocketProvider: FC<{ children: ReactNode }> = ({ children }) => {
       dispatch(action);
     });
 
-    const ROOM_ID: string = 'room id';
-    const USER_ID: string = '10';
+    socket.on("user-disconnected", (userId) => {});
 
-    socket.emit('join-room', ROOM_ID, USER_ID);
+    peer.on("open", (id: string) => {
+      const ROOM_ID: string = "room-id";
 
-    socket.on('user-connected', userId => {
-      console.log('user connected by id: ' + userId);
+      console.log('connection opened');
       
-    })
 
+      socket.emit("join-room", ROOM_ID, id);
+    });
+
+    peer.on("call", (call: MediaConnection) => {
+      call.answer(state.stream);
+
+      console.log('called user: ', call?.peer);
+      call.on('stream', (remoteUserStream: MediaStream) => {
+        dispatch({type: 'ADD_USER', payload: {id: call?.peer, stream: remoteUserStream}})
+      })
+    });
+
+    const connectToNewUser = (id: string, stream: MediaStream | undefined) => {
+      const call = stream && peer.call(id, stream);
+
+      call?.on("stream", (userVideoStream) => {
+        dispatch({
+          type: "ADD_USER",
+          payload: { id, stream: userVideoStream },
+        });
+      });
+
+      call?.on("close", () => {
+        myVideo.current?.remove();
+      });
+    };
+
+    socket.on("user-connected", (userId) => {
+      connectToNewUser(userId, state.stream);
+    });
   }, []);
-
-  //   const setLanguage = (language: string) =>
-  //     dispatch({ type: "SET_LANGUAGE ", payload: language });
 
   // const callUser = () => {};
 
@@ -98,10 +174,22 @@ export const SocketProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   // const leaveCall = () => {};
 
+  const addUser = (user: User) => {
+    const action: Action = { type: "ADD_USER", payload: user };
+    dispatch(action);
+  };
+
+  const removeUser = (user: User) => {
+    const action: Action = { type: "REMOVE_USER", payload: user };
+    dispatch(action);
+  };
+
   const value = useMemo(
     () => ({
       ...state,
-      // setLanguage,
+      myVideo,
+      addUser,
+      removeUser,
     }),
     [state]
   );

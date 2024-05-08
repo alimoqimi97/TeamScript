@@ -1,4 +1,4 @@
-import { Language } from "@/types";
+import { Language, User } from "@/types";
 
 export const LANGUAGES: Language[] = [
   { id: 1, name: "python" },
@@ -110,3 +110,8 @@ export const monacoThemes = {
   monoindustrial: "monoindustrial",
   vsDark: "vs-dark",
 };
+
+export const initialUser: User = {
+  id: '',
+  stream: undefined
+}
