@@ -40,7 +40,6 @@ export default function Home() {
     <div>
       <p>Status: {isConnected ? "connected" : "disconnected"}</p>
       <p>Transport: {transport}</p>
-      <VideoPlayer />
     </div>
   );
 }

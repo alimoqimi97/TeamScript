@@ -6,6 +6,10 @@ const { createServer } = require("node:http");
 const next = require("next");
 const { Server } = require("socket.io");
 
+const { PeerServer } = require("peer");
+
+const peerServer = PeerServer({ port: 9000, path: "/myapp" });
+
 const dev = process.env.NODE_ENV !== "production";
 const HOSTNAME = "localhost";
 const PORT = process.env.port || 3000;
@@ -24,7 +28,6 @@ app.prepare().then(() => {
   });
 
   io.on("connection", (socket) => {
-    console.log(`user connected with id: ${socket.id}`)
 
     socket.emit("me", socket.id);
 
@@ -33,14 +36,16 @@ app.prepare().then(() => {
     });
 
     socket.on('join-room', (roomId, userId) => {
-      console.log(`user ${userId} joined the room ${roomId}`);
-      
       socket.join(roomId);
 
-      socket.to(roomId).broadcast.emit('user-connected', userId);
+      console.log({roomId, userId});
+
+      io.to(roomId).emit('user-connected', userId)
+
+      // socket?.broadcast?.emit('user-connected', userId);
 
       socket.on('disconnect', () => {
-        socket.to(roomId).broadcast.emit('user-disconnected',userId)
+        socket.broadcast.to(roomId).emit('user-disconnected',userId)
       })
     })
 

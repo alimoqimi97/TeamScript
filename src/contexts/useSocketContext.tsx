@@ -104,13 +104,25 @@ export const SocketProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(socketReducer, initialContextValue);
   const myVideo = useRef<HTMLVideoElement>(null);
 
+  console.log('users: ', state?.users);
+
   useEffect(() => {
+
+    
+
+    if (!navigator) {
+      return;
+    }
+
     const peer = new Peer({
-      host: "/",
-      port: 3000,
+      host: "localhost",
+      port: 9000,
+      path: "/myapp",
     });
 
-    navigator.mediaDevices
+    
+
+    state?.stream || navigator.mediaDevices
       .getUserMedia({ video: true, audio: true })
       .then((currentStream: MediaStream) => {
         const action: Action = { type: "SET_STREAM", payload: currentStream };
@@ -120,7 +132,7 @@ export const SocketProvider: FC<{ children: ReactNode }> = ({ children }) => {
         if (myVideo?.current) {
           myVideo.current.srcObject = currentStream;
         }
-      });
+      }).catch(err => console.error(err));
 
     socket.on("me", (id) => {
       const action: Action = { type: "SET_SOCKET_ID", payload: id };
@@ -133,22 +145,22 @@ export const SocketProvider: FC<{ children: ReactNode }> = ({ children }) => {
     peer.on("open", (id: string) => {
       const ROOM_ID: string = "room-id";
 
-      console.log('connection opened');
-      
-
       socket.emit("join-room", ROOM_ID, id);
     });
 
     peer.on("call", (call: MediaConnection) => {
       call.answer(state.stream);
-
-      console.log('called user: ', call?.peer);
-      call.on('stream', (remoteUserStream: MediaStream) => {
-        dispatch({type: 'ADD_USER', payload: {id: call?.peer, stream: remoteUserStream}})
-      })
+      
+      call.on("stream", (remoteUserStream: MediaStream) => {
+        dispatch({
+          type: "ADD_USER",
+          payload: { id: call?.peer, stream: remoteUserStream },
+        });
+      });
     });
 
     const connectToNewUser = (id: string, stream: MediaStream | undefined) => {
+      
       const call = stream && peer.call(id, stream);
 
       call?.on("stream", (userVideoStream) => {
@@ -164,9 +176,12 @@ export const SocketProvider: FC<{ children: ReactNode }> = ({ children }) => {
     };
 
     socket.on("user-connected", (userId) => {
+      console.log('===================user connected========================');
+      
       connectToNewUser(userId, state.stream);
     });
-  }, []);
+
+  }, [state?.stream]);
 
   // const callUser = () => {};
 
