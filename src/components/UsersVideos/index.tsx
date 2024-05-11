@@ -8,7 +8,7 @@ export interface IUsersVideos {}
 
 const UsersVideos: FC = () => {
   const { users, stream } = useSocketContext();
-
+  
   return (
     <div className={styles["users-videos"]}>
       <VideoPlayer id={"current-user"} stream={stream ?? new MediaStream()} />

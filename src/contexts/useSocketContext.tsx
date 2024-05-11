@@ -23,6 +23,7 @@ interface IState {
   users?: User[];
   addUser?: (user: User) => void;
   removeUser?: (user: User) => void;
+  myPeer?: Peer;
 }
 
 const initialContextValue: IState = {
@@ -30,6 +31,7 @@ const initialContextValue: IState = {
   socketId: "",
   myVideo: undefined,
   users: [],
+  myPeer: undefined,
 };
 
 const SocketContext = createContext<IState>(initialContextValue);
@@ -41,7 +43,8 @@ type Action =
   | { type: "SET_SOCKET_ID"; payload: string }
   | { type: "SET_MY_VIDEO"; payload?: RefObject<HTMLVideoElement> }
   | { type: "ADD_USER"; payload?: User }
-  | { type: "REMOVE_USER"; payload?: User };
+  | { type: "REMOVE_USER"; payload?: User }
+  | { type: "SET_MY_PEER"; payload?: Peer };
 
 function socketReducer(state: IState, action: Action) {
   switch (action.type) {
@@ -71,7 +74,11 @@ function socketReducer(state: IState, action: Action) {
     }
     case "ADD_USER": {
       const users: User[] = state.users ?? [];
-      users?.push(action?.payload ?? initialUser);
+      const isAlreadyAdded = users?.some((user: User) => user?.id === action?.payload?.id);
+
+      if (!isAlreadyAdded) {
+        users?.push(action?.payload ?? initialUser);
+      }
 
       const newState: IState = {
         ...state,
@@ -94,6 +101,14 @@ function socketReducer(state: IState, action: Action) {
 
       return newState;
     }
+    case "SET_MY_PEER": {
+      const newState: IState = {
+        ...state,
+        myPeer: action?.payload,
+      };
+
+      return newState;
+    }
 
     default:
       throw new Error("Unhandled Action type.");
@@ -103,92 +118,15 @@ function socketReducer(state: IState, action: Action) {
 export const SocketProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(socketReducer, initialContextValue);
   const myVideo = useRef<HTMLVideoElement>(null);
+  const peerRef = useRef<Peer>(new Peer({
+    host: "localhost",
+    port: 9000,
+    path: "/myapp",
+  }))
 
-  console.log('users: ', state?.users);
-
-  useEffect(() => {
-
-    
-
-    if (!navigator) {
-      return;
-    }
-
-    const peer = new Peer({
-      host: "localhost",
-      port: 9000,
-      path: "/myapp",
-    });
-
-    
-
-    state?.stream || navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
-      .then((currentStream: MediaStream) => {
-        const action: Action = { type: "SET_STREAM", payload: currentStream };
-
-        dispatch(action);
-
-        if (myVideo?.current) {
-          myVideo.current.srcObject = currentStream;
-        }
-      }).catch(err => console.error(err));
-
-    socket.on("me", (id) => {
-      const action: Action = { type: "SET_SOCKET_ID", payload: id };
-
-      dispatch(action);
-    });
-
-    socket.on("user-disconnected", (userId) => {});
-
-    peer.on("open", (id: string) => {
-      const ROOM_ID: string = "room-id";
-
-      socket.emit("join-room", ROOM_ID, id);
-    });
-
-    peer.on("call", (call: MediaConnection) => {
-      call.answer(state.stream);
-      
-      call.on("stream", (remoteUserStream: MediaStream) => {
-        dispatch({
-          type: "ADD_USER",
-          payload: { id: call?.peer, stream: remoteUserStream },
-        });
-      });
-    });
-
-    const connectToNewUser = (id: string, stream: MediaStream | undefined) => {
-      
-      const call = stream && peer.call(id, stream);
-
-      call?.on("stream", (userVideoStream) => {
-        dispatch({
-          type: "ADD_USER",
-          payload: { id, stream: userVideoStream },
-        });
-      });
-
-      call?.on("close", () => {
-        myVideo.current?.remove();
-      });
-    };
-
-    socket.on("user-connected", (userId) => {
-      console.log('===================user connected========================');
-      
-      connectToNewUser(userId, state.stream);
-    });
-
-  }, [state?.stream]);
-
-  // const callUser = () => {};
-
-  // const answerCall = () => {};
-
-  // const leaveCall = () => {};
-
+  console.log(state?.users);
+  
+  
   const addUser = (user: User) => {
     const action: Action = { type: "ADD_USER", payload: user };
     dispatch(action);
@@ -198,6 +136,75 @@ export const SocketProvider: FC<{ children: ReactNode }> = ({ children }) => {
     const action: Action = { type: "REMOVE_USER", payload: user };
     dispatch(action);
   };
+
+  useEffect(() => {
+    const peer: Peer = peerRef?.current;
+    
+    if (!navigator) {
+      return;
+    }
+
+    state?.stream ||
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: true })
+        .then((currentStream: MediaStream) => {
+          const action: Action = { type: "SET_STREAM", payload: currentStream };
+
+          dispatch(action);
+
+          if (myVideo?.current) {
+            myVideo.current.srcObject = currentStream;
+          }
+        })
+        .catch((err) => console.error(err));
+
+    socket.on("me", (id) => {
+      // const action: Action = { type: "SET_SOCKET_ID", payload: id };
+      // dispatch(action);
+    });
+
+    socket.on("user-disconnected", (userId) => {
+      removeUser({id: userId})
+    });
+
+    peer?.on("open", (id: string) => {
+      const ROOM_ID: string = "room-id";
+
+      console.log('join-room, my peer id: ', id);
+
+      socket.emit("join-room", ROOM_ID, id);
+    });
+
+    peer?.on("call", (call: MediaConnection) => {
+      call.answer(state.stream);
+
+      call.on("stream", (remoteUserStream: MediaStream) => {
+        console.log('answer a user: ', call?.peer, peer.id);
+        
+        addUser({ id: call?.peer, stream: remoteUserStream });
+      });
+    });
+
+    const connectToNewUser = (id: string, stream: MediaStream | undefined) => {
+      const call = stream && peer?.call(id, stream);
+
+      call?.on("stream", (userVideoStream) => {
+        console.log('calling a user: ', id, peer.id);
+        
+        addUser({ id, stream: userVideoStream });
+      });
+
+      call?.on("close", () => {
+        myVideo.current?.remove();
+      });
+    };
+
+    socket.on("user-connected", (userId) => {
+      if (userId !== peer?.id) {
+        connectToNewUser(userId, state.stream);
+      }
+    });
+  }, [state?.stream]);
 
   const value = useMemo(
     () => ({
