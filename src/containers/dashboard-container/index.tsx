@@ -26,12 +26,12 @@ const DashboardContainer: FC = () => {
   }, []);
 
   return (
-    <SocketProvider>
-      <section className={styles["dashboard-container"]}>
-        {/* <MonacoCodeEditor /> */}
+    <section className={styles["dashboard-container"]}>
+      <MonacoCodeEditor />
+      <SocketProvider>
         <UsersVideos />
-      </section>
-    </SocketProvider>
+      </SocketProvider>
+    </section>
   );
 };
 

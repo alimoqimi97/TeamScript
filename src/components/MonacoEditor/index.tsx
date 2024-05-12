@@ -6,6 +6,7 @@ import { WebrtcProvider } from "y-webrtc";
 import { MonacoBinding } from "y-monaco";
 import { loader } from "@monaco-editor/react";
 import { useGlobalContext } from "@/contexts/useGlobalContext";
+import styles from "./styles.module.scss";
 
 loader.config({ monaco });
 
@@ -39,10 +40,11 @@ export default function MonacoCodeEditor() {
   };
 
   return (
-    <>
+    <div className={styles["monaco-editor"]}>
       <Editor
-        height="100vh"
-        width="100vw"
+        className={styles["editor"]}
+        // height="100vh"
+        // width="1000px"
         theme={theme}
         language={language}
         onMount={handleEditorMount}
@@ -73,6 +75,6 @@ export default function MonacoCodeEditor() {
           automaticLayout: true,
         }}
       />
-    </>
+    </div>
   );
 }

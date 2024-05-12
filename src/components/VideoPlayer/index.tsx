@@ -18,7 +18,6 @@ const VideoPlayer: FC<IVideoPlayer> = ({ id, stream }) => {
 
   return (
     <div className={styles['video-player']}>
-      <h5>User ID: {id}</h5>
       <video
         ref={videoRef}
         onLoadedMetadata={(event: SyntheticEvent<HTMLVideoElement, Event>) =>

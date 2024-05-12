@@ -20,6 +20,8 @@ const httpsOptions = {
   cert: readFileSync("./localhost.pem"),
 };
 
+console.log(readFileSync("./localhost-key.pem"))
+
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname: HOSTNAME, port: PORT });
 const handler = app.getRequestHandler();
@@ -28,12 +30,18 @@ app.prepare().then(() => {
   // const httpServer = createServer(httpsOptions, handler);
   // const httpServer = createServer(handler);
 
-  const httpServer = createServer(httpsOptions, (req, res) => {
+  const httpsServer = createServer(httpsOptions, (req, res) => {
     const parsedUrl = parse(req.url, true);
     handler(req, res, parsedUrl);
+  }).once("error", (err) => {
+    console.error(err);
+    process.exit(1);
   })
+  .listen(PORT, () => {
+    console.log(`> Ready on https://${HOSTNAME}:${PORT}`);
+  });
 
-  const io = new Server(httpServer, {
+  const io = new Server(httpsServer, {
     cors: {
       origin: "*",
       methods: ["GET", "POST"],
@@ -61,12 +69,12 @@ app.prepare().then(() => {
 
   });
 
-  httpServer
-    .once("error", (err) => {
-      console.error(err);
-      process.exit(1);
-    })
-    .listen(PORT, () => {
-      console.log(`> Ready on https://${HOSTNAME}:${PORT}`);
-    });
+  // httpServer
+  //   .once("error", (err) => {
+  //     console.error(err);
+  //     process.exit(1);
+  //   })
+  //   .listen(PORT, () => {
+  //     console.log(`> Ready on https://${HOSTNAME}:${PORT}`);
+  //   });
 });
