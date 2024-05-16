@@ -3,6 +3,7 @@
 // import { Server } from "socket.io";
 
 const { createServer } = require("node:http");
+const https = require('https');
 const next = require("next");
 const { Server } = require("socket.io");
 const { readFileSync } = require("fs");
@@ -18,9 +19,9 @@ const PORT = process.env.port || 3000;
 const httpsOptions = {
   key: readFileSync("./localhost-key.pem"),
   cert: readFileSync("./localhost.pem"),
+  requestCert: false,
+    rejectUnauthorized: false
 };
-
-console.log(readFileSync("./localhost-key.pem"))
 
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname: HOSTNAME, port: PORT });
@@ -30,16 +31,17 @@ app.prepare().then(() => {
   // const httpServer = createServer(httpsOptions, handler);
   // const httpServer = createServer(handler);
 
-  const httpsServer = createServer(httpsOptions, (req, res) => {
+  const httpsServer = https?.createServer(httpsOptions, (req, res) => {
     const parsedUrl = parse(req.url, true);
     handler(req, res, parsedUrl);
-  }).once("error", (err) => {
-    console.error(err);
-    process.exit(1);
   })
-  .listen(PORT, () => {
-    console.log(`> Ready on https://${HOSTNAME}:${PORT}`);
-  });
+  // .once("error", (err) => {
+  //   console.error(err);
+  //   process.exit(1);
+  // })
+  // .listen(PORT, () => {
+  //   console.log(`> Ready on https://${HOSTNAME}:${PORT}`);
+  // });
 
   const io = new Server(httpsServer, {
     cors: {
@@ -69,12 +71,12 @@ app.prepare().then(() => {
 
   });
 
-  // httpServer
-  //   .once("error", (err) => {
-  //     console.error(err);
-  //     process.exit(1);
-  //   })
-  //   .listen(PORT, () => {
-  //     console.log(`> Ready on https://${HOSTNAME}:${PORT}`);
-  //   });
+  httpsServer
+    .once("error", (err) => {
+      console.error(err);
+      process.exit(1);
+    })
+    .listen(PORT, () => {
+      console.log(`> Ready on https://${HOSTNAME}:${PORT}`);
+    });
 });

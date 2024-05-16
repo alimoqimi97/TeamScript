@@ -74,7 +74,9 @@ function socketReducer(state: IState, action: Action) {
     }
     case "ADD_USER": {
       const users: User[] = state.users ?? [];
-      const isAlreadyAdded = users?.some((user: User) => user?.id === action?.payload?.id);
+      const isAlreadyAdded = users?.some(
+        (user: User) => user?.id === action?.payload?.id
+      );
 
       if (!isAlreadyAdded) {
         users?.push(action?.payload ?? initialUser);
@@ -118,15 +120,14 @@ function socketReducer(state: IState, action: Action) {
 export const SocketProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(socketReducer, initialContextValue);
   const myVideo = useRef<HTMLVideoElement>(null);
-  const peerRef = useRef<Peer>(new Peer({
-    host: "localhost",
-    port: 9000,
-    path: "/myapp",
-  }))
+  const peerRef = useRef<Peer>(
+    new Peer({
+      host: "localhost",
+      port: 9000,
+      path: "/myapp",
+    })
+  );
 
-  console.log(state?.users);
-  
-  
   const addUser = (user: User) => {
     const action: Action = { type: "ADD_USER", payload: user };
     dispatch(action);
@@ -139,24 +140,47 @@ export const SocketProvider: FC<{ children: ReactNode }> = ({ children }) => {
 
   useEffect(() => {
     const peer: Peer = peerRef?.current;
-    
+
     if (!navigator) {
       return;
     }
 
+    let getUserMedia =
+      navigator?.getUserMedia ||
+      navigator?.webkitGetUserMedia ||
+      navigator?.mozGetUserMedia;
+
     state?.stream ||
-      navigator.mediaDevices
-        .getUserMedia({ video: true, audio: true })
-        .then((currentStream: MediaStream) => {
-          const action: Action = { type: "SET_STREAM", payload: currentStream };
+      getUserMedia?.call(
+        navigator,
+        {
+          video: true,
+          audio: true,
+        },
+        function (stream: MediaStream) {
+          const action: Action = { type: "SET_STREAM", payload: stream };
 
           dispatch(action);
 
           if (myVideo?.current) {
-            myVideo.current.srcObject = currentStream;
+            myVideo.current.srcObject = stream;
           }
-        })
-        .catch((err) => console.error(err));
+        }
+      );
+
+    // state?.stream ||
+    //   navigator?.mediaDevices
+    //     ?.getUserMedia({ video: true, audio: true })
+    //     .then((currentStream: MediaStream) => {
+    //       const action: Action = { type: "SET_STREAM", payload: currentStream };
+
+    //       dispatch(action);
+
+    //       if (myVideo?.current) {
+    //         myVideo.current.srcObject = currentStream;
+    //       }
+    //     })
+    //     .catch((err) => console.error(err));
 
     socket.on("me", (id) => {
       // const action: Action = { type: "SET_SOCKET_ID", payload: id };
@@ -164,14 +188,11 @@ export const SocketProvider: FC<{ children: ReactNode }> = ({ children }) => {
     });
 
     socket.on("user-disconnected", (userId) => {
-      removeUser({id: userId})
+      removeUser({ id: userId });
     });
 
     peer?.on("open", (id: string) => {
       const ROOM_ID: string = "room-id";
-
-      console.log('join-room, my peer id: ', id);
-
       socket.emit("join-room", ROOM_ID, id);
     });
 
@@ -179,8 +200,6 @@ export const SocketProvider: FC<{ children: ReactNode }> = ({ children }) => {
       call.answer(state.stream);
 
       call.on("stream", (remoteUserStream: MediaStream) => {
-        console.log('answer a user: ', call?.peer, peer.id);
-        
         addUser({ id: call?.peer, stream: remoteUserStream });
       });
     });
@@ -189,8 +208,6 @@ export const SocketProvider: FC<{ children: ReactNode }> = ({ children }) => {
       const call = stream && peer?.call(id, stream);
 
       call?.on("stream", (userVideoStream) => {
-        console.log('calling a user: ', id, peer.id);
-        
         addUser({ id, stream: userVideoStream });
       });
 

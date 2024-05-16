@@ -27,7 +27,7 @@ const DashboardContainer: FC = () => {
 
   return (
     <section className={styles["dashboard-container"]}>
-      <MonacoCodeEditor />
+      {/* <MonacoCodeEditor /> */}
       <SocketProvider>
         <UsersVideos />
       </SocketProvider>
